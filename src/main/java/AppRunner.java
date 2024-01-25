@@ -1,14 +1,26 @@
+import java.io.IOException;
 import java.util.Scanner;
 
 public class AppRunner {
-    private boolean exit = false;
-    private final Scanner keyboard = new Scanner(System.in);
+    private boolean exit;
+    private final Scanner keyboard;
+    private static final String INCORRECT_INPUT = "Error! Incorrect Input. Try again: ";
+    private static final String INCORRECT_OPTION = "Incorrect option";
+    private static final String INPUT_NUMBER_OF_ROADS = "Input the number of roads: ";
+    private static final String INPUT_INTERVAL = "Input the interval: ";
 
+    public AppRunner() {
+        this.keyboard = new Scanner(System.in);
+        this.exit = false;
+    }
 
     public void execute() {
         printGreeting();
-        int numRoads = getNumberOfRoadsFromKeyboard();
-        int numInterval = getIntervalFromKeyboard();
+        System.out.print(INPUT_NUMBER_OF_ROADS);
+        int numRoads = getPositiveIntFromKeyboard();
+        System.out.print(INPUT_INTERVAL);
+        int numInterval = getPositiveIntFromKeyboard();
+        clearConsole();
         executeRequests();
     }
 
@@ -25,28 +37,39 @@ public class AppRunner {
                 0. Quit""");
     }
 
-    private int getNumberOfRoadsFromKeyboard() {
-        System.out.print("Input the number of roads: ");
-        return keyboard.nextInt();
+    private int getPositiveIntFromKeyboard() {
+        int num = 0;
+        while (num < 1) {
+            String input = keyboard.nextLine();
+            if (isDigit(input) && isPositiveNum(input))
+                num = Integer.parseInt(input);
+            else
+                System.out.print(INCORRECT_INPUT);
+        }
+        return num;
     }
 
-    private int getIntervalFromKeyboard() {
-        System.out.print("Input the interval: ");
-        int interval = keyboard.nextInt();
-        keyboard.nextLine();
-        return interval;
+    private boolean isDigit(String input) {
+        return input.matches("\\d+");
+    }
+
+    private boolean isPositiveNum(String input) {
+        return Integer.parseInt(input) > 0;
     }
 
     private void addRoad() {
         System.out.println("Road added");
+        waitForKeyStrokeThenClearConsole();
     }
 
     private void deleteRoad() {
         System.out.println("Road deleted");
+        waitForKeyStrokeThenClearConsole();
     }
 
     private void openSystem() {
         System.out.println("System opened");
+        waitForKeyStrokeThenClearConsole();
     }
 
     private void quit() {
@@ -55,7 +78,18 @@ public class AppRunner {
     }
 
     private String getRequestFromKeyboard() {
-        return keyboard.nextLine();
+        String request = keyboard.nextLine();
+        while (!isValidRequest(request)) {
+            System.out.println(INCORRECT_OPTION);
+            waitForKeyStrokeThenClearConsole();
+            printMainMenu();
+            request = keyboard.nextLine();
+        }
+        return request;
+    }
+
+    private boolean isValidRequest(String request) {
+        return request.matches("[0123]");
     }
 
     private void executeRequests() {
@@ -69,5 +103,21 @@ public class AppRunner {
                 case "3" -> openSystem();
             }
         }
+    }
+
+    private void waitForKeyStrokeThenClearConsole() {
+        keyboard.nextLine();
+        clearConsole();
+    }
+
+    private void clearConsole() {
+        try {
+            var clearCommand = System.getProperty("os.name").contains("Windows")
+                    ? new ProcessBuilder("cmd", "/c", "cls")
+                    : new ProcessBuilder("clear");
+            clearCommand.inheritIO().start().waitFor();
+        }
+        catch (IOException | InterruptedException e) {}
+
     }
  }
