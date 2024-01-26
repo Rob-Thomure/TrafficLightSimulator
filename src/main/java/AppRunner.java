@@ -2,7 +2,12 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class AppRunner {
+    private enum States {NOT_STARTED, MENU, SYSTEM}
+    private States appState;
     private boolean exit;
+    private int numRoads;
+    private int numInterval;
+    private Thread queueThread;
     private final Scanner keyboard;
     private static final String INCORRECT_INPUT = "Error! Incorrect Input. Try again: ";
     private static final String INCORRECT_OPTION = "Incorrect option";
@@ -12,14 +17,17 @@ public class AppRunner {
     public AppRunner() {
         this.keyboard = new Scanner(System.in);
         this.exit = false;
+        this.appState = States.NOT_STARTED;
+        this.numRoads = 0;
+        this.numInterval = 0;
     }
 
     public void execute() {
         printGreeting();
         System.out.print(INPUT_NUMBER_OF_ROADS);
-        int numRoads = getPositiveIntFromKeyboard();
+        numRoads = getPositiveIntFromKeyboard();
         System.out.print(INPUT_INTERVAL);
-        int numInterval = getPositiveIntFromKeyboard();
+        numInterval = getPositiveIntFromKeyboard();
         clearConsole();
         executeRequests();
     }
@@ -59,17 +67,18 @@ public class AppRunner {
 
     private void addRoad() {
         System.out.println("Road added");
-        waitForKeyStrokeThenClearConsole();
+        nextLineThenClearConsole();
     }
 
     private void deleteRoad() {
         System.out.println("Road deleted");
-        waitForKeyStrokeThenClearConsole();
+        nextLineThenClearConsole();
     }
 
     private void openSystem() {
-        System.out.println("System opened");
-        waitForKeyStrokeThenClearConsole();
+        appState = States.SYSTEM;
+        nextLineThenClearConsole();
+        appState = States.MENU;
     }
 
     private void quit() {
@@ -81,7 +90,7 @@ public class AppRunner {
         String request = keyboard.nextLine();
         while (!isValidRequest(request)) {
             System.out.println(INCORRECT_OPTION);
-            waitForKeyStrokeThenClearConsole();
+            nextLineThenClearConsole();
             printMainMenu();
             request = keyboard.nextLine();
         }
@@ -93,6 +102,9 @@ public class AppRunner {
     }
 
     private void executeRequests() {
+        appState = States.MENU;
+        queueThread = new Thread(this::run, "QueueThread");
+        queueThread.start();
         while (!exit) {
             printMainMenu();
             String request = getRequestFromKeyboard();
@@ -105,7 +117,7 @@ public class AppRunner {
         }
     }
 
-    private void waitForKeyStrokeThenClearConsole() {
+    private void nextLineThenClearConsole() {
         keyboard.nextLine();
         clearConsole();
     }
@@ -120,4 +132,32 @@ public class AppRunner {
         catch (IOException | InterruptedException e) {}
 
     }
- }
+
+    private void run() {
+        Time time = new Time();
+        while (!exit) {
+            if (appState == States.SYSTEM) {
+                clearConsole();
+                printSystemInfo(time);
+            }
+            try {
+                Thread.sleep(1000L);
+                time.addSecond();
+            } catch (InterruptedException e) {
+
+            }
+
+        }
+    }
+
+    private void printSystemInfo(Time time) {
+        String formattedString = """
+                ! %ds. have passed since system startup !
+                ! Number of roads: %d !
+                ! Interval: %d !
+                ! Press "Enter" to open menu 1"""
+                .formatted(time.getDuration(), numRoads, numInterval);
+        System.out.println(formattedString);
+    }
+}
+
