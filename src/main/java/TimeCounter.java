@@ -1,7 +1,7 @@
-public class Time {
+public class TimeCounter {
     private int duration;
 
-    public Time() {
+    public TimeCounter() {
         this.duration = 0;
     }
 

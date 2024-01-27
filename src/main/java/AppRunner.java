@@ -134,7 +134,7 @@ public class AppRunner {
     }
 
     private void run() {
-        Time time = new Time();
+        TimeCounter time = new TimeCounter();
         while (!exit) {
             if (appState == States.SYSTEM) {
                 clearConsole();
@@ -150,7 +150,7 @@ public class AppRunner {
         }
     }
 
-    private void printSystemInfo(Time time) {
+    private void printSystemInfo(TimeCounter time) {
         String formattedString = """
                 ! %ds. have passed since system startup !
                 ! Number of roads: %d !
