@@ -3,12 +3,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RoadCircularQueTest {
-    RoadCircularQue roadCircularQue;
+    RoadCircularQueue roadCircularQue;
     static Road road1;
     static Road road2;
     static Road road3;
@@ -21,7 +22,7 @@ public class RoadCircularQueTest {
 
     @BeforeEach
     public void createRoadCircularQue() {
-        roadCircularQue = new RoadCircularQue(5);
+        roadCircularQue = new RoadCircularQueue(5);
     }
 
     @BeforeAll
@@ -115,6 +116,23 @@ public class RoadCircularQueTest {
         roadCircularQue.dequeue();
         Road result = roadCircularQue.dequeue();
         Road expected = road6;
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testGetList() {
+        roadCircularQue.enqueue(road1);
+        roadCircularQue.enqueue(road2);
+        roadCircularQue.enqueue(road3);
+        roadCircularQue.enqueue(road4);
+        roadCircularQue.enqueue(road5);
+        roadCircularQue.dequeue();
+        roadCircularQue.dequeue();
+        roadCircularQue.dequeue();
+        roadCircularQue.enqueue(road6);
+        roadCircularQue.enqueue(road7);
+        List<Road> result = roadCircularQue.getRoadList();
+        List<Road> expected = List.of(road4, road5, road6, road7);
         assertEquals(expected, result);
     }
 

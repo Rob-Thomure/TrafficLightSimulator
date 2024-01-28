@@ -1,13 +1,15 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 
-public class RoadCircularQue {
-    private Road[] elements;
+public class RoadCircularQueue {
+    private final Road[] elements;
     private int size;
     private int front;
     private int rear;
 
-    public RoadCircularQue(int length) {
+    public RoadCircularQueue(int length) {
         this.elements = new Road[length];
         this.size = 0;
         this.front = 0;
@@ -56,6 +58,21 @@ public class RoadCircularQue {
     private void setNextFrontPosition() {
         front = (front + 1) % elements.length;
     }
+
+    public List<Road> getRoadList() {
+        List<Road> roadList = new ArrayList<>();
+        int index = front;
+        boolean hasAddedRear = false;
+        while (elements[index] != null && !hasAddedRear) {
+            roadList.add(elements[index]);
+            if (index == rear)
+                hasAddedRear = true;
+            index = (index + 1) % elements.length;
+        }
+        return roadList;
+    }
+
+
 
     @Override
     public String toString() {

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class AppRunner {
@@ -7,6 +8,7 @@ public class AppRunner {
     private boolean exit;
     private int numRoads;
     private int numInterval;
+    private RoadCircularQueue roadCircularQue;
     private Thread queueThread;
     private final Scanner keyboard;
     private static final String INCORRECT_INPUT = "Error! Incorrect Input. Try again: ";
@@ -26,6 +28,7 @@ public class AppRunner {
         printGreeting();
         System.out.print(INPUT_NUMBER_OF_ROADS);
         numRoads = getPositiveIntFromKeyboard();
+        roadCircularQue = new RoadCircularQueue(numRoads);
         System.out.print(INPUT_INTERVAL);
         numInterval = getPositiveIntFromKeyboard();
         clearConsole();
@@ -66,12 +69,28 @@ public class AppRunner {
     }
 
     private void addRoad() {
-        System.out.println("Road added");
+        System.out.print("Input road name: ");
+        String roadName = keyboard.nextLine();
+        Road road = new Road(roadName);
+
+        if (roadCircularQue.enqueue(road)) {
+            System.out.println(roadName + " added!");
+        } else {
+            System.out.println("Queue is full");
+        }
+
+
         nextLineThenClearConsole();
     }
 
     private void deleteRoad() {
-        System.out.println("Road deleted");
+        try {
+            Road road = roadCircularQue.dequeue();
+            System.out.println(road.getName() + " deleted!");
+        } catch (NoSuchElementException e) {
+            System.out.println("Queue is empty");
+        }
+
         nextLineThenClearConsole();
     }
 
@@ -155,9 +174,19 @@ public class AppRunner {
                 ! %ds. have passed since system startup !
                 ! Number of roads: %d !
                 ! Interval: %d !
+                
+                %s
                 ! Press "Enter" to open menu 1"""
-                .formatted(time.getDuration(), numRoads, numInterval);
+                .formatted(time.getDuration(), numRoads, numInterval, formatRoadList());
         System.out.println(formattedString);
     }
+
+    private String formatRoadList() {
+        StringBuilder stringBuilder = new StringBuilder();
+        roadCircularQue.getRoadList()
+                .forEach(road -> stringBuilder.append(road.getName()).append("\n"));
+        return stringBuilder.toString();
+    }
+
 }
 
